@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,6 +11,8 @@
   --color-alerta-baja:    #F59E0B;
   --color-disponible:     #16A34A;
   --color-no-disponible:  #9CA3AF;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', system-ui, sans-serif;
 }
 
 :root {
@@ -22,7 +25,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-body);
   background-color: var(--cafe-espresso);
   color: var(--cafe-crema);
   -webkit-font-smoothing: antialiased;
