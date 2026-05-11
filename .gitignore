@@ -1,0 +1,46 @@
+# Dependencias
+node_modules
+
+# Build
+dist
+dist-ssr
+
+# Variables de entorno (contienen URLs y secretos)
+.env
+.env.local
+.env.*.local
+
+# Cache de Vite y Tailwind
+.vite
+**/.cache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.local
+
+# Reglas de contexto para IA
+*.mdc

@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cafe-espresso:  #000000;
+  --color-cafe-tostado:   #af4c0f;
+  --color-cafe-latte:     #C4956A;
+  --color-cafe-crema:     #f8f4ec;
+  --color-cafe-vapor:     #EEE8E0;
+  --color-alerta-critica: #DC2626;
+  --color-alerta-baja:    #F59E0B;
+  --color-disponible:     #16A34A;
+  --color-no-disponible:  #9CA3AF;
+}
+
+:root {
+  --cafe-espresso:  #000000;
+  --cafe-tostado:   #af4c0f;
+  --cafe-latte:     #C4956A;
+  --cafe-crema:     #f8f4ec;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, sans-serif;
+  background-color: var(--cafe-espresso);
+  color: var(--cafe-crema);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100svh; }
