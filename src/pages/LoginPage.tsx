@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Coffee } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { login } from '../api/authApi'
 import { useAuthStore } from '../store/authStore'
 import { loginSchema, type LoginFormData } from '../utils/validaciones'
-import logoImg from '../assets/hero.png'
+import logo from '../assets/cafesino-logo.png'
+import bg from '../assets/cafesino-bg.jpg'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -25,80 +26,88 @@ export default function LoginPage() {
     try {
       const result = await login(data.email, data.password)
       setAuth(result.token, result.usuario)
-      if (result.usuario.rol === 'Administrador') {
-        navigate('/admin/dashboard')
-      } else {
-        navigate('/barista/menu')
-      }
+      navigate(result.usuario.rol === 'Administrador' ? '/admin/dashboard' : '/barista/menu')
     } catch (err: unknown) {
-      const message =
+      const msg =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : null
-      setServerError(message ?? 'Error al iniciar sesión. Intenta de nuevo.')
+      setServerError(msg ?? 'Error al iniciar sesion. Intenta de nuevo.')
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cafe-espresso px-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <img
-            src={logoImg}
-            alt="Cafésino"
-            className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-cafe-tostado"
-          />
-          <h1 className="text-cafe-crema text-2xl font-semibold tracking-wide">
-            CAFÉSINO
-          </h1>
-          <p className="text-cafe-latte text-sm mt-1">Sistema de inventario</p>
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/60" />
+
+      <div className="relative z-10 w-full max-w-sm">
+
+        {/* Logo y nombre */}
+        <div className="flex flex-col items-center mb-8 gap-2">
+          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-cafe-latte shadow-xl">
+            <img src={logo} alt="Cafesino" className="w-full h-full object-cover" />
+          </div>
+          <p className="text-cafe-latte text-sm tracking-widest uppercase">
+            Sistema de inventario
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-cafe-crema rounded-2xl p-8 shadow-xl">
-          <h2 className="text-cafe-espresso text-xl font-semibold mb-6 text-center">
-            Iniciar sesión
+        {/* Tarjeta estilo imagen referencia */}
+        <div
+          className="rounded-2xl px-8 py-8"
+          style={{ background: 'rgba(20, 12, 6, 0.72)', backdropFilter: 'blur(6px)' }}
+        >
+          {/* Titulo dorado estilo referencia */}
+          <h2
+            className="text-center text-2xl font-extrabold mb-8 tracking-wide"
+            style={{ color: '#C4956A', fontFamily: 'Georgia, serif' }}
+          >
+            Iniciar sesion
           </h2>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-cafe-espresso mb-1">
-                Correo electrónico
+              <label className="block text-white font-bold text-sm mb-2">
+                Correo electronico
               </label>
               <input
                 type="email"
                 autoComplete="email"
                 placeholder="usuario@cafesino.com"
                 {...register('email')}
-                className="w-full px-4 py-2.5 rounded-lg border border-cafe-vapor bg-white text-cafe-espresso placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cafe-tostado"
+                className="w-full bg-transparent border-0 border-b border-cafe-latte/60 pb-2 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cafe-latte transition"
               />
               {errors.email && (
                 <p className="text-alerta-critica text-xs mt-1">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Password */}
+            {/* Contrasena */}
             <div>
-              <label className="block text-sm font-medium text-cafe-espresso mb-1">
-                Contraseña
+              <label className="block text-white font-bold text-sm mb-2">
+                Contrasena
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  placeholder="••••••••"
+                  placeholder="????????"
                   {...register('password')}
-                  className="w-full px-4 py-2.5 pr-10 rounded-lg border border-cafe-vapor bg-white text-cafe-espresso placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cafe-tostado"
+                  className="w-full bg-transparent border-0 border-b border-cafe-latte/60 pb-2 pr-8 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cafe-latte transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-cafe-tostado"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute right-0 bottom-2 text-gray-400 hover:text-cafe-latte transition"
+                  aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
               {errors.password && (
@@ -106,27 +115,31 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Error del servidor */}
+            {/* Error servidor */}
             {serverError && (
-              <p className="text-alerta-critica text-sm text-center bg-red-50 rounded-lg py-2 px-3">
+              <div className="rounded-lg bg-red-900/40 border border-alerta-critica/50 px-4 py-2.5 text-alerta-critica text-sm text-center">
                 {serverError}
-              </p>
+              </div>
             )}
 
-            {/* Submit */}
+            {/* Boton tipo pilldora ? igual a la imagen */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-cafe-tostado text-white font-semibold hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 mt-2 rounded-full font-semibold text-sm tracking-widest uppercase transition disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 active:scale-95"
+              style={{ background: '#C4956A', color: '#1a0e06' }}
             >
-              {isSubmitting ? (
-                <span className="animate-spin"><Coffee size={18} /></span>
-              ) : (
-                'Entrar'
-              )}
+              {isSubmitting ? 'Verificando...' : 'Entrar'}
             </button>
+
           </form>
+
+          {/* Footer */}
+          <p className="text-gray-400 text-xs text-center mt-6">
+            Solo personal autorizado &mdash; Cafesino
+          </p>
         </div>
+
       </div>
     </div>
   )
