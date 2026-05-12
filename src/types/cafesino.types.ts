@@ -17,6 +17,7 @@ export interface ApiError {
 }
 
 export interface Ingrediente {
+  _id?: string
   ing_id: string
   nombre: string
   stock: number
@@ -25,6 +26,7 @@ export interface Ingrediente {
 }
 
 export interface Producto {
+  _id?: string
   prod_id: string
   nombre: string
   categoria: string
@@ -35,15 +37,16 @@ export interface Producto {
 export interface Venta {
   venta_id: string
   barista_id: string
-  productos: string[]
+  productos: { prod_id: string; cantidad: number }[]
   total: number
   fecha: string
 }
 
 export interface Alerta {
+  _id?: string
   alert_id: string
   ing_id: string
-  nivel: 'Bajo' | 'Agotado'
+  nivel: 'Bajo' | 'Agotado' | 'Critico'
   msj: string
   fecha: string
   visto: boolean
