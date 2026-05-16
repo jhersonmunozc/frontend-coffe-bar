@@ -8,7 +8,7 @@ import imgEspresso from '../assets/product-espresso.png'
 import imgAmericano from '../assets/product-americano.png'
 import imgLatte from '../assets/product-latte.png'
 
-const PRODUCT_IMAGES: Record<string, string> = {
+const FALLBACK_IMAGES: Record<string, string> = {
   P001: imgWaffle,
   P002: imgLatte,
   P003: imgLatte,
@@ -17,8 +17,9 @@ const PRODUCT_IMAGES: Record<string, string> = {
   P006: imgEspresso,
 }
 
-function getImage(prod_id: string): string {
-  return PRODUCT_IMAGES[prod_id] ?? bg
+function getImage(prod: Producto): string {
+  if (prod.imagen_url) return prod.imagen_url
+  return FALLBACK_IMAGES[prod.prod_id] ?? bg
 }
 
 function ProductoCard({ producto }: { producto: Producto }) {
@@ -35,7 +36,7 @@ function ProductoCard({ producto }: { producto: Producto }) {
       <div
         className="h-40 w-full"
         style={{
-          backgroundImage: `url(${getImage(producto.prod_id)})`,
+          backgroundImage: `url(${getImage(producto)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

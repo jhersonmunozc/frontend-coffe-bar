@@ -34,7 +34,7 @@ export async function crearProducto(body: Omit<Producto, '_id' | 'disponible'>):
   return data
 }
 
-export async function editarProducto(prod_id: string, body: Partial<Omit<Producto, '_id' | 'prod_id' | 'disponible'>>): Promise<Producto> {
+export async function editarProducto(prod_id: string, body: Partial<Omit<Producto, '_id' | 'prod_id'>>): Promise<Producto> {
   const { data } = await axiosInstance.put<Producto>(`/productos/${prod_id}`, body)
   return data
 }

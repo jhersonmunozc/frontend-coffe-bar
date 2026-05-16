@@ -1,5 +1,5 @@
 import { useState }           from 'react'
-import { Search, Download, Plus } from 'lucide-react'
+import { Topbar }                 from '../../components/layout/Topbar'
 import { useIngredientes }        from '../../hooks/useIngredientes'
 import { StatsGrid }              from '../../components/ingredientes/StatsGrid'
 import { AlertBanner }            from '../../components/ingredientes/AlertBanner'
@@ -16,13 +16,7 @@ const BTN_PRIMARY: React.CSSProperties = {
   display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
   borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13.5,
   fontWeight: 600, background: 'var(--cafe)', color: '#fff',
-  fontFamily: 'inherit', transition: 'background 0.15s',
-}
-const BTN_SECONDARY: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
-  borderRadius: 8, cursor: 'pointer', fontSize: 13.5, fontWeight: 500,
-  background: 'transparent', border: '1.5px solid var(--border)',
-  color: 'var(--muted)', fontFamily: 'inherit',
+  fontFamily: 'inherit',
 }
 
 export default function IngredientesPage() {
@@ -70,51 +64,16 @@ export default function IngredientesPage() {
   return (
     <div style={{ padding: 32, background: 'var(--bg)', minHeight: '100vh' }}>
 
-      {/* ?? Topbar de p?gina ?? */}
-      <div style={{
-        background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: 14, padding: '14px 20px', marginBottom: 24,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 12,
-      }}>
-        <div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 600, color: 'var(--text)', margin: 0 }}>
-            Ingredientes
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
-            Gestion de inventario &middot; {stats.total} ingredientes registrados
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Search */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'var(--bg)', border: '1.5px solid var(--border)',
-            borderRadius: 8, padding: '7px 12px', width: 200,
-          }}>
-            <Search size={14} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar ingrediente..."
-              style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13.5, color: 'var(--text)', width: '100%', fontFamily: 'inherit' }}
-            />
-          </div>
-          {/* Exportar */}
-          <button onClick={exportCSV} style={BTN_SECONDARY}>
-            <Download size={14} /> Exportar
-          </button>
-          {/* Nuevo */}
-          <button
-            onClick={() => setModalCrear(true)}
-            style={BTN_PRIMARY}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--cafe-dark)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--cafe)')}
-          >
-            <Plus size={14} /> Nuevo ingrediente
-          </button>
-        </div>
-      </div>
+      <Topbar
+        title="Ingredientes"
+        subtitle={`Gestion de inventario \u00b7 ${stats.total} ingredientes registrados`}
+        labelBoton="Nuevo ingrediente"
+        onNuevo={() => setModalCrear(true)}
+        searchPlaceholder="Buscar ingrediente..."
+        searchValue={query}
+        onSearchChange={setQuery}
+        onExportar={exportCSV}
+      />
 
       {/* Stats */}
       <StatsGrid total={stats.total} ok={stats.ok} low={stats.low} crit={stats.crit} />

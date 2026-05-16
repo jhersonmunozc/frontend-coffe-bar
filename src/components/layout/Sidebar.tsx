@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, FlaskConical, ShoppingBag, Bell, LogOut, Settings,
+  LayoutDashboard, FlaskConical, ShoppingBag, Bell, LogOut, Settings, BookOpen,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { logout } from '../../api/authApi'
@@ -112,6 +112,7 @@ export function Sidebar({ alertCount = 0 }: SidebarProps) {
         <NavItem to="/admin/dashboard"    icon={<LayoutDashboard size={18} />} label="Dashboard" />
         <NavItem to="/admin/ingredientes" icon={<FlaskConical size={18} />}    label="Ingredientes" />
         <NavItem to="/admin/productos"    icon={<ShoppingBag size={18} />}     label="Productos" />
+        <NavItem to="/admin/recetas"      icon={<BookOpen size={18} />}        label="Recetas" />
 
         <div style={S.sectionLabel}>Sistema</div>
         <NavItem to="/admin/alertas"      icon={<Bell size={18} />}    label="Alertas" badge={alertCount} />

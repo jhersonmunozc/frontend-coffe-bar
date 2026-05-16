@@ -1,13 +1,18 @@
 import { AlertTriangle } from 'lucide-react'
 
-interface AlertBannerProps { crit: number; low: number }
+interface AlertBannerProps {
+  crit?: number
+  low?: number
+  message?: string
+}
 
-export function AlertBanner({ crit, low }: AlertBannerProps) {
-  if (crit === 0 && low === 0) return null
+export function AlertBanner({ crit = 0, low = 0, message }: AlertBannerProps) {
+  if (crit === 0 && low === 0 && !message) return null
 
-  const msg = crit > 0
-    ? `${crit} ingrediente${crit > 1 ? 's' : ''} con stock critico requieren atenci?n inmediata.`
-    : `${low} ingrediente${low > 1 ? 's' : ''} est?n por debajo del nivel minimo.`
+  const msg = message
+    ?? (crit > 0
+      ? `${crit} ingrediente${crit > 1 ? 's' : ''} con stock critico requieren atencion inmediata.`
+      : `${low} ingrediente${low > 1 ? 's' : ''} estan por debajo del nivel minimo.`)
 
   return (
     <div style={{

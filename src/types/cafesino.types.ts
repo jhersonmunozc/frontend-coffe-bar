@@ -32,6 +32,18 @@ export interface Producto {
   categoria: string
   precio: number
   disponible: boolean
+  imagen_url?: string
+}
+
+export interface RecetaIngrediente {
+  ing_id: string
+  cantidad: number
+}
+
+export interface Receta {
+  _id?: string
+  prod_id: string
+  ingredientes: RecetaIngrediente[]
 }
 
 export interface Venta {

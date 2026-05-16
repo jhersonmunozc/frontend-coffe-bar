@@ -7,6 +7,7 @@ import AdminDashboardPage       from './pages/admin/AdminDashboardPage'
 import IngredientesPage         from './pages/admin/IngredientesPage'
 import ProductosPage            from './pages/admin/ProductosPage'
 import AlertasPage              from './pages/admin/AlertasPage'
+import RecetasPage              from './pages/admin/RecetasPage'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/admin/ingredientes" element={<IngredientesPage />} />
           <Route path="/admin/productos"    element={<ProductosPage />} />
           <Route path="/admin/alertas"      element={<AlertasPage />} />
+          <Route path="/admin/recetas"      element={<RecetasPage />} />
         </Route>
       </Route>
 
