@@ -1,282 +1,164 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Plus, Pencil, Trash2, PlusCircle } from 'lucide-react'
+import { useState }           from 'react'
+import { Search, Download, Plus } from 'lucide-react'
+import { useIngredientes }        from '../../hooks/useIngredientes'
+import { StatsGrid }              from '../../components/ingredientes/StatsGrid'
+import { AlertBanner }            from '../../components/ingredientes/AlertBanner'
+import { IngredientsTable }       from '../../components/ingredientes/IngredientsTable'
 import {
-  getIngredientes,
-  crearIngrediente,
-  editarIngrediente,
-  agregarStock,
-  eliminarIngrediente,
-} from '../../api/ingredientesApi'
+  ModalCrearIngrediente,
+  ModalEditarIngrediente,
+  ModalAgregarStock,
+  ModalEliminarIngrediente,
+} from '../../components/ingredientes/IngredientModal'
 import type { Ingrediente } from '../../types/cafesino.types'
-import { Modal }  from '../../components/ui/Modal'
-import { Badge }  from '../../components/ui/Badge'
 
-/* ?? Zod schemas ?? */
-const schemaIngrediente = z.object({
-  ing_id:   z.string().min(1, 'Requerido').regex(/^\S+$/, 'Sin espacios'),
-  nombre:   z.string().min(2, 'Min 2 caracteres'),
-  stock:    z.coerce.number().min(0, 'Min 0'),
-  u_medida: z.enum(['ml', 'g', 'u'], { errorMap: () => ({ message: 'Selecciona unidad' }) }),
-  minimo:   z.coerce.number().min(0, 'Min 0'),
-})
-type FormIngrediente = z.infer<typeof schemaIngrediente>
-
-const schemaStock = z.object({
-  cantidad: z.coerce.number().min(1, 'Min 1'),
-})
-type FormStock = z.infer<typeof schemaStock>
-
-/* ?? Campo reutilizable ?? */
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</label>
-      {children}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
-  )
+const BTN_PRIMARY: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
+  borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13.5,
+  fontWeight: 600, background: 'var(--cafe)', color: '#fff',
+  fontFamily: 'inherit', transition: 'background 0.15s',
+}
+const BTN_SECONDARY: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+  borderRadius: 8, cursor: 'pointer', fontSize: 13.5, fontWeight: 500,
+  background: 'transparent', border: '1.5px solid var(--border)',
+  color: 'var(--muted)', fontFamily: 'inherit',
 }
 
-const INPUT = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-orange-400 transition-colors"
-const BTN_PRIMARY = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85"
-const BTN_DANGER  = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 transition-opacity hover:opacity-85"
-
 export default function IngredientesPage() {
-  const qc = useQueryClient()
-  const { data: ingredientes = [], isLoading, isError, error, refetch } = useQuery({ queryKey: ['ingredientes'], queryFn: getIngredientes })
+  const {
+    filtered, stats, isLoading, isError, refetch,
+    filtro, setFiltro, query, setQuery,
+    mutCrear, mutEditar, mutStock, mutEliminar,
+    exportCSV,
+  } = useIngredientes()
 
-  /* modales */
+  /* Estado de modales */
   const [modalCrear,  setModalCrear]  = useState(false)
-  const [modalEditar, setModalEditar] = useState<Ingrediente | null>(null)
-  const [modalStock,  setModalStock]  = useState<Ingrediente | null>(null)
-  const [confirmarEliminar, setConfirmarEliminar] = useState<Ingrediente | null>(null)
+  const [paraEditar,  setParaEditar]  = useState<Ingrediente | null>(null)
+  const [paraStock,   setParaStock]   = useState<Ingrediente | null>(null)
+  const [paraEliminar,setParaEliminar]= useState<Ingrediente | null>(null)
 
-  /* mutations */
-  const invalidar = () => qc.invalidateQueries({ queryKey: ['ingredientes'] })
-
-  const mutCrear = useMutation({
-    mutationFn: crearIngrediente,
-    onSuccess: () => { invalidar(); setModalCrear(false) },
-  })
-  const mutEditar = useMutation({
-    mutationFn: ({ ing_id, datos }: { ing_id: string; datos: Partial<Omit<Ingrediente, '_id' | 'ing_id'>> }) =>
-      editarIngrediente(ing_id, datos),
-    onSuccess: () => { invalidar(); setModalEditar(null) },
-  })
-  const mutStock = useMutation({
-    mutationFn: ({ ing_id, cantidad }: { ing_id: string; cantidad: number }) => agregarStock(ing_id, cantidad),
-    onSuccess: () => { invalidar(); setModalStock(null) },
-  })
-  const mutEliminar = useMutation({
-    mutationFn: (ing_id: string) => eliminarIngrediente(ing_id),
-    onSuccess: () => { invalidar(); setConfirmarEliminar(null) },
-  })
-
-  /* forms */
-  const formCrear = useForm<FormIngrediente>({ resolver: zodResolver(schemaIngrediente) })
-  const formEditar = useForm<FormIngrediente>({ resolver: zodResolver(schemaIngrediente) })
-  const formStock  = useForm<FormStock>({ resolver: zodResolver(schemaStock) })
-
-  const abrirEditar = (ing: Ingrediente) => {
-    formEditar.reset({ ing_id: ing.ing_id, nombre: ing.nombre, stock: ing.stock, u_medida: ing.u_medida, minimo: ing.minimo })
-    setModalEditar(ing)
+  /* Skeleton loader */
+  if (isLoading) {
+    return (
+      <div style={{ padding: 32, background: 'var(--bg)', minHeight: '100vh' }}>
+        <div style={{ height: 28, width: 200, background: '#E8DDD4', borderRadius: 8, marginBottom: 8 }} />
+        <div style={{ height: 16, width: 280, background: '#E8DDD4', borderRadius: 6, marginBottom: 28 }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
+          {[0,1,2,3].map((i) => (
+            <div key={i} style={{ height: 100, background: '#fff', borderRadius: 14, border: '1px solid var(--border)', animation: 'pulse 1.4s ease-in-out infinite' }} />
+          ))}
+        </div>
+        <div style={{ height: 360, background: '#fff', borderRadius: 16, border: '1px solid var(--border)' }} />
+      </div>
+    )
   }
 
-  const estadoBadge = (ing: Ingrediente) =>
-    ing.stock === 0 ? 'red' : ing.stock <= ing.minimo ? 'yellow' : 'green'
-  const estadoLabel = (ing: Ingrediente) =>
-    ing.stock === 0 ? 'Agotado' : ing.stock <= ing.minimo ? 'Critico' : 'OK'
+  /* Error state */
+  if (isError) {
+    return (
+      <div style={{ padding: 32, background: 'var(--bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--red)', marginBottom: 8 }}>No se pudo cargar el inventario</p>
+          <button onClick={() => refetch()} style={BTN_PRIMARY}>Reintentar</button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Encabezado */}
-      <div className="flex items-center justify-between mb-8">
+    <div style={{ padding: 32, background: 'var(--bg)', minHeight: '100vh' }}>
+
+      {/* ?? Topbar de p?gina ?? */}
+      <div style={{
+        background: 'var(--surface)', border: '1px solid var(--border)',
+        borderRadius: 14, padding: '14px 20px', marginBottom: 24,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12,
+      }}>
         <div>
-          <h1 className="font-bold leading-none" style={{ fontSize: 28, color: '#1a1a2e', fontFamily: "'Playfair Display', serif" }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 600, color: 'var(--text)', margin: 0 }}>
             Ingredientes
           </h1>
-          <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>Gestion de inventario</p>
+          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
+            Gestion de inventario &middot; {stats.total} ingredientes registrados
+          </p>
         </div>
-        <button
-          onClick={() => { formCrear.reset(); setModalCrear(true) }}
-          className={BTN_PRIMARY}
-          style={{ background: '#af4c0f' }}
-        >
-          <Plus size={16} /> Nuevo ingrediente
-        </button>
-      </div>
-
-      {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        {isLoading ? (
-          <div className="p-10 text-center text-gray-400 text-sm">Cargando ingredientes...</div>
-        ) : isError ? (
-          <div className="p-10 text-center">
-            <p className="text-red-500 text-sm font-semibold mb-1">No se pudo cargar el listado</p>
-            <p className="text-xs text-gray-400 mb-4">{(error as Error)?.message ?? 'Error de conexion'}</p>
-            <button onClick={() => refetch()} className="px-4 py-2 rounded-lg text-sm text-white font-semibold" style={{ background: '#af4c0f' }}>
-              Reintentar
-            </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Search */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--bg)', border: '1.5px solid var(--border)',
+            borderRadius: 8, padding: '7px 12px', width: 200,
+          }}>
+            <Search size={14} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar ingrediente..."
+              style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13.5, color: 'var(--text)', width: '100%', fontFamily: 'inherit' }}
+            />
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '2px solid #f3f4f6' }}>
-                  {['ID', 'Nombre', 'Stock', 'Unidad', 'Minimo', 'Estado', ''].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 font-semibold uppercase tracking-wider" style={{ fontSize: 11, color: '#9ca3af' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {ingredientes.map((ing) => (
-                  <tr key={ing.ing_id} className="hover:bg-gray-50 transition-colors" style={{ borderBottom: '1px solid #f9fafb' }}>
-                    <td className="px-5 py-3.5 font-mono text-xs text-gray-500">{ing.ing_id}</td>
-                    <td className="px-5 py-3.5 font-semibold text-gray-800">{ing.nombre}</td>
-                    <td className="px-5 py-3.5 font-bold" style={{ color: ing.stock <= ing.minimo ? '#dc2626' : '#111827' }}>{ing.stock}</td>
-                    <td className="px-5 py-3.5 text-gray-500">{ing.u_medida}</td>
-                    <td className="px-5 py-3.5 text-gray-500">{ing.minimo}</td>
-                    <td className="px-5 py-3.5"><Badge label={estadoLabel(ing)} color={estadoBadge(ing)} /></td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <button title="Agregar stock" onClick={() => { formStock.reset(); setModalStock(ing) }}
-                          className="p-1.5 rounded-lg hover:bg-green-50 text-green-600 transition-colors">
-                          <PlusCircle size={16} />
-                        </button>
-                        <button title="Editar" onClick={() => abrirEditar(ing)}
-                          className="p-1.5 rounded-lg hover:bg-orange-50 transition-colors" style={{ color: '#af4c0f' }}>
-                          <Pencil size={16} />
-                        </button>
-                        <button title="Eliminar" onClick={() => setConfirmarEliminar(ing)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {ingredientes.length === 0 && (
-              <p className="text-center py-10 text-gray-400 text-sm">Sin ingredientes registrados</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Modal Crear */}
-      <Modal isOpen={modalCrear} onClose={() => setModalCrear(false)} title="Nuevo ingrediente">
-        <form onSubmit={formCrear.handleSubmit((d) => mutCrear.mutate(d))} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="ID" error={formCrear.formState.errors.ing_id?.message}>
-              <input {...formCrear.register('ing_id')} placeholder="ej. cafe-001" className={INPUT} />
-            </Field>
-            <Field label="Nombre" error={formCrear.formState.errors.nombre?.message}>
-              <input {...formCrear.register('nombre')} placeholder="ej. Cafe molido" className={INPUT} />
-            </Field>
-            <Field label="Stock inicial" error={formCrear.formState.errors.stock?.message}>
-              <input {...formCrear.register('stock')} type="number" min="0" className={INPUT} />
-            </Field>
-            <Field label="Unidad" error={formCrear.formState.errors.u_medida?.message}>
-              <select {...formCrear.register('u_medida')} className={INPUT}>
-                <option value="">Seleccionar</option>
-                <option value="ml">ml</option>
-                <option value="g">g</option>
-                <option value="u">u (unidad)</option>
-              </select>
-            </Field>
-            <Field label="Stock minimo" error={formCrear.formState.errors.minimo?.message}>
-              <input {...formCrear.register('minimo')} type="number" min="0" className={INPUT} />
-            </Field>
-          </div>
-          {mutCrear.isError && <p className="text-xs text-red-500">Error al crear ingrediente</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={() => setModalCrear(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
-            <button type="submit" disabled={mutCrear.isPending} className={BTN_PRIMARY} style={{ background: '#af4c0f' }}>
-              {mutCrear.isPending ? 'Guardando...' : 'Guardar'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Modal Editar */}
-      <Modal isOpen={!!modalEditar} onClose={() => setModalEditar(null)} title="Editar ingrediente">
-        <form onSubmit={formEditar.handleSubmit((d) => {
-          if (!modalEditar) return
-          const { ing_id, ...rest } = d
-          mutEditar.mutate({ ing_id: modalEditar.ing_id, datos: rest })
-        })} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="ID (no editable)" error={undefined}>
-              <input value={modalEditar?.ing_id ?? ''} disabled className={INPUT + ' bg-gray-50 text-gray-400'} />
-            </Field>
-            <Field label="Nombre" error={formEditar.formState.errors.nombre?.message}>
-              <input {...formEditar.register('nombre')} className={INPUT} />
-            </Field>
-            <Field label="Stock" error={formEditar.formState.errors.stock?.message}>
-              <input {...formEditar.register('stock')} type="number" min="0" className={INPUT} />
-            </Field>
-            <Field label="Unidad" error={formEditar.formState.errors.u_medida?.message}>
-              <select {...formEditar.register('u_medida')} className={INPUT}>
-                <option value="ml">ml</option>
-                <option value="g">g</option>
-                <option value="u">u (unidad)</option>
-              </select>
-            </Field>
-            <Field label="Stock minimo" error={formEditar.formState.errors.minimo?.message}>
-              <input {...formEditar.register('minimo')} type="number" min="0" className={INPUT} />
-            </Field>
-          </div>
-          {mutEditar.isError && <p className="text-xs text-red-500">Error al actualizar</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={() => setModalEditar(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
-            <button type="submit" disabled={mutEditar.isPending} className={BTN_PRIMARY} style={{ background: '#af4c0f' }}>
-              {mutEditar.isPending ? 'Guardando...' : 'Guardar cambios'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Modal +Stock */}
-      <Modal isOpen={!!modalStock} onClose={() => setModalStock(null)} title={`Agregar stock ? ${modalStock?.nombre}`} maxWidth={360}>
-        <form onSubmit={formStock.handleSubmit((d) => {
-          if (!modalStock) return
-          mutStock.mutate({ ing_id: modalStock.ing_id, cantidad: d.cantidad })
-        })} className="flex flex-col gap-4">
-          <Field label="Cantidad a agregar" error={formStock.formState.errors.cantidad?.message}>
-            <input {...formStock.register('cantidad')} type="number" min="1" className={INPUT} autoFocus />
-          </Field>
-          {mutStock.isError && <p className="text-xs text-red-500">Error al actualizar stock</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={() => setModalStock(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
-            <button type="submit" disabled={mutStock.isPending} className={BTN_PRIMARY} style={{ background: '#16a34a' }}>
-              {mutStock.isPending ? 'Agregando...' : 'Agregar stock'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Confirm Eliminar */}
-      <Modal isOpen={!!confirmarEliminar} onClose={() => setConfirmarEliminar(null)} title="Confirmar eliminacion" maxWidth={400}>
-        <p className="text-sm text-gray-600 mb-6">
-          ?Seguro que deseas eliminar <strong>{confirmarEliminar?.nombre}</strong>? Esta accion no se puede deshacer.
-        </p>
-        {mutEliminar.isError && <p className="text-xs text-red-500 mb-3">Error al eliminar</p>}
-        <div className="flex justify-end gap-3">
-          <button onClick={() => setConfirmarEliminar(null)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
+          {/* Exportar */}
+          <button onClick={exportCSV} style={BTN_SECONDARY}>
+            <Download size={14} /> Exportar
+          </button>
+          {/* Nuevo */}
           <button
-            onClick={() => confirmarEliminar && mutEliminar.mutate(confirmarEliminar.ing_id)}
-            disabled={mutEliminar.isPending}
-            className={BTN_DANGER}
+            onClick={() => setModalCrear(true)}
+            style={BTN_PRIMARY}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--cafe-dark)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--cafe)')}
           >
-            {mutEliminar.isPending ? 'Eliminando...' : 'Eliminar'}
+            <Plus size={14} /> Nuevo ingrediente
           </button>
         </div>
-      </Modal>
+      </div>
+
+      {/* Stats */}
+      <StatsGrid total={stats.total} ok={stats.ok} low={stats.low} crit={stats.crit} />
+
+      {/* Alert banner */}
+      <AlertBanner crit={stats.crit} low={stats.low} />
+
+      {/* Tabla */}
+      <IngredientsTable
+        rows={filtered}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        onStock={(ing) => setParaStock(ing)}
+        onEdit={(ing) => setParaEditar(ing)}
+        onDelete={(ing) => setParaEliminar(ing)}
+      />
+
+      {/* Modales */}
+      <ModalCrearIngrediente
+        isOpen={modalCrear}
+        onClose={() => setModalCrear(false)}
+        onSubmit={(d) => mutCrear.mutate(d, { onSuccess: () => setModalCrear(false) })}
+        isPending={mutCrear.isPending}
+        isError={mutCrear.isError}
+      />
+      <ModalEditarIngrediente
+        ing={paraEditar}
+        onClose={() => setParaEditar(null)}
+        onSubmit={(id, d) => mutEditar.mutate({ ing_id: id, datos: d }, { onSuccess: () => setParaEditar(null) })}
+        isPending={mutEditar.isPending}
+        isError={mutEditar.isError}
+      />
+      <ModalAgregarStock
+        ing={paraStock}
+        onClose={() => setParaStock(null)}
+        onSubmit={(id, cant) => mutStock.mutate({ ing_id: id, cantidad: cant }, { onSuccess: () => setParaStock(null) })}
+        isPending={mutStock.isPending}
+      />
+      <ModalEliminarIngrediente
+        ing={paraEliminar}
+        onClose={() => setParaEliminar(null)}
+        onConfirm={(id) => mutEliminar.mutate(id, { onSuccess: () => setParaEliminar(null) })}
+        isPending={mutEliminar.isPending}
+      />
     </div>
   )
 }
