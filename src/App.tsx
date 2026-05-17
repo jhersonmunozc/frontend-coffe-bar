@@ -1,14 +1,19 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute }       from './components/layout/ProtectedRoute'
-import { AdminLayout }          from './components/layout/AdminLayout'
-import LoginPage                from './pages/LoginPage'
-import MenuPublicoPage          from './pages/MenuPublicoPage'
-import AdminDashboardPage       from './pages/admin/AdminDashboardPage'
-import IngredientesPage         from './pages/admin/IngredientesPage'
-import ProductosPage            from './pages/admin/ProductosPage'
-import AlertasPage              from './pages/admin/AlertasPage'
-import RecetasPage              from './pages/admin/RecetasPage'
-import UsuariosPage             from './pages/admin/UsuariosPage'
+import { ProtectedRoute }         from './components/layout/ProtectedRoute'
+import { AdminLayout }            from './components/layout/AdminLayout'
+import { BaristaLayout }          from './components/layout/BaristaLayout'
+import LoginPage                  from './pages/LoginPage'
+import MenuPublicoPage            from './pages/MenuPublicoPage'
+import AdminDashboardPage         from './pages/admin/AdminDashboardPage'
+import IngredientesPage           from './pages/admin/IngredientesPage'
+import ProductosPage              from './pages/admin/ProductosPage'
+import AlertasPage                from './pages/admin/AlertasPage'
+import RecetasPage                from './pages/admin/RecetasPage'
+import UsuariosPage               from './pages/admin/UsuariosPage'
+import AdminVentasPage            from './pages/admin/AdminVentasPage'
+import BaristaDashboardPage       from './pages/barista/BaristaDashboardPage'
+import BaristaVentasPage          from './pages/barista/BaristaVentasPage'
+import BaristaMenuPage            from './pages/barista/BaristaMenuPage'
 
 function App() {
   return (
@@ -17,8 +22,11 @@ function App() {
       <Route path="/menu"  element={<MenuPublicoPage />} />
 
       <Route element={<ProtectedRoute rolesPermitidos={['Barista']} />}>
-        <Route path="/barista/menu"   element={<div className="p-8">Barista Menu</div>} />
-        <Route path="/barista/ventas" element={<div className="p-8">Historial Ventas</div>} />
+        <Route element={<BaristaLayout />}>
+          <Route path="/barista/dashboard" element={<BaristaDashboardPage />} />
+          <Route path="/barista/ventas"    element={<BaristaVentasPage />} />
+          <Route path="/barista/menu"      element={<BaristaMenuPage />} />
+        </Route>
       </Route>
 
       <Route element={<ProtectedRoute rolesPermitidos={['Administrador']} />}>
@@ -29,6 +37,7 @@ function App() {
           <Route path="/admin/alertas"      element={<AlertasPage />} />
           <Route path="/admin/recetas"      element={<RecetasPage />} />
           <Route path="/admin/usuarios"     element={<UsuariosPage />} />
+          <Route path="/admin/ventas"       element={<AdminVentasPage />} />
         </Route>
       </Route>
 

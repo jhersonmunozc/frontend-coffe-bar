@@ -22,7 +22,7 @@ export function useLogin() {
       const result = await login(data.email, data.password)
       setAuth(result.token, result.usuario)
       setSuccess(true)
-      navigate(result.usuario.rol === 'Administrador' ? '/admin/dashboard' : '/barista/menu')
+      navigate(result.usuario.rol === 'Administrador' ? '/admin/dashboard' : '/barista/dashboard')
     } catch (err: unknown) {
       const msg =
         err && typeof err === 'object' && 'response' in err

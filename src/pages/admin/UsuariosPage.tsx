@@ -333,8 +333,8 @@ export default function UsuariosPage() {
   return (
     <div style={{ padding: '28px 32px', background: 'var(--bg)', minHeight: '100vh' }}>
       <Topbar
-        titulo="Usuarios"
-        subtitulo="Gestión de cuentas de acceso al panel"
+        title="Usuarios"
+        subtitle="Gestión de cuentas de acceso al panel"
         labelBoton="Nuevo usuario"
         onNuevo={() => setModalCrear(true)}
         searchPlaceholder="Buscar por nombre, email o ID..."
