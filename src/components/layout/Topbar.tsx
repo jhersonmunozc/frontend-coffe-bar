@@ -1,4 +1,4 @@
-import { Search, Download, Plus } from 'lucide-react'
+import { Search, Download, Plus, CheckCheck } from 'lucide-react'
 
 interface TopbarProps {
   title: string
@@ -9,13 +9,16 @@ interface TopbarProps {
   searchValue?: string
   onSearchChange?: (v: string) => void
   onExportar?: () => void
+  onMarcarTodas?: () => void
+  labelMarcarTodas?: string
 }
 
 export function Topbar({
   title, subtitle, labelBoton, onNuevo,
   searchPlaceholder = '', searchValue = '', onSearchChange, onExportar,
+  onMarcarTodas, labelMarcarTodas,
 }: TopbarProps) {
-  const hasActions = !!(onNuevo || onExportar || onSearchChange)
+  const hasActions = !!(onNuevo || onExportar || onSearchChange || onMarcarTodas)
   return (
     <div style={{
       background: 'var(--surface)', border: '1px solid var(--border)',
@@ -45,6 +48,14 @@ export function Topbar({
                 style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13.5, color: 'var(--text)', width: '100%', fontFamily: 'inherit' }}
               />
             </div>
+          )}
+          {onMarcarTodas && (
+            <button
+              onClick={onMarcarTodas}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13.5, fontWeight: 500, background: 'transparent', border: '1.5px solid var(--border)', color: 'var(--muted)', fontFamily: 'inherit' }}
+            >
+              <CheckCheck size={14} /> {labelMarcarTodas ?? 'Marcar vistas'}
+            </button>
           )}
           {onExportar && (
             <button

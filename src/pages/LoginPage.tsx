@@ -97,7 +97,7 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  placeholder="????????"
+                  placeholder="••••••••"
                   {...register('password')}
                   className="w-full bg-transparent border-0 border-b border-cafe-latte/60 pb-2 pr-8 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cafe-latte transition"
                 />

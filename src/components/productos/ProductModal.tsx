@@ -116,7 +116,7 @@ export function ModalProducto({ producto, isOpen, onClose, onSubmit, isPending, 
             {errors.nombre && <p style={ERR}>{errors.nombre}</p>}
           </div>
 
-          {/* Categor?a */}
+          {/* Categoría */}
           <div>
             <label style={LABEL}>Categoria</label>
             <select value={form.categoria} onChange={(e) => set('categoria', e.target.value)} style={{ ...INPUT_BASE, appearance: 'none' }}>
@@ -178,7 +178,7 @@ export function ModalProducto({ producto, isOpen, onClose, onSubmit, isPending, 
   )
 }
 
-/* ?? Confirm eliminar ?? */
+/* Confirm eliminar */
 interface ConfirmEliminarProps {
   producto: Producto | null
   onClose:  () => void

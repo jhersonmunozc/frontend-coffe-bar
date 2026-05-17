@@ -118,7 +118,7 @@ export function IngredientsTable({
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: 'var(--bg)' }}>
               <tr>
-                {['ID', 'Nombre', 'Stock', 'Unidad', 'M?nimo', 'Estado', 'Acciones'].map((h) => (
+                {['ID', 'Nombre', 'Stock', 'Unidad', 'Mínimo', 'Estado', 'Acciones'].map((h) => (
                   <th key={h} style={TH}>{h}</th>
                 ))}
               </tr>

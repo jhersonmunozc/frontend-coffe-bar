@@ -2,8 +2,9 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FlaskConical, ShoppingBag, Bell, LogOut, Settings, BookOpen,
 } from 'lucide-react'
-import { useAuthStore } from '../../store/authStore'
-import { logout } from '../../api/authApi'
+import { useAuthStore }       from '../../store/authStore'
+import { logout }             from '../../api/authApi'
+import { useAlertasContext }  from '../../context/AlertasContext'
 
 const S = {
   sidebar: {
@@ -79,11 +80,10 @@ function NavItem({ to, icon, label, badge }: NavItemProps) {
   )
 }
 
-interface SidebarProps { alertCount?: number }
-
-export function Sidebar({ alertCount = 0 }: SidebarProps) {
+export function Sidebar() {
   const navigate = useNavigate()
-  const { usuario, clearAuth } = useAuthStore()
+  const { usuario, clearAuth }  = useAuthStore()
+  const { pendientes }          = useAlertasContext()
 
   const handleLogout = async () => {
     try { await logout() } catch { /* ya invalido */ }
@@ -95,28 +95,28 @@ export function Sidebar({ alertCount = 0 }: SidebarProps) {
     <aside style={S.sidebar}>
       {/* Logo */}
       <div style={S.logo}>
-        <div style={S.logoIcon}>?</div>
+        <div style={S.logoIcon}>☕</div>
         <div>
           <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: '#fff', fontWeight: 600 }}>
             Cafesino
           </div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
-            PANEL DE ADMINISTRACI?N
+            PANEL DE ADMINISTRACIÓN
           </div>
         </div>
       </div>
 
       {/* Nav principal */}
       <div style={S.nav}>
-        <div style={S.sectionLabel}>Navegaci?n</div>
+        <div style={S.sectionLabel}>Navegación</div>
         <NavItem to="/admin/dashboard"    icon={<LayoutDashboard size={18} />} label="Dashboard" />
         <NavItem to="/admin/ingredientes" icon={<FlaskConical size={18} />}    label="Ingredientes" />
         <NavItem to="/admin/productos"    icon={<ShoppingBag size={18} />}     label="Productos" />
         <NavItem to="/admin/recetas"      icon={<BookOpen size={18} />}        label="Recetas" />
 
         <div style={S.sectionLabel}>Sistema</div>
-        <NavItem to="/admin/alertas"      icon={<Bell size={18} />}    label="Alertas" badge={alertCount} />
-        <NavItem to="/admin/config"       icon={<Settings size={18} />} label="Configuraci?n" />
+        <NavItem to="/admin/alertas"      icon={<Bell size={18} />}    label="Alertas" badge={pendientes} />
+        <NavItem to="/admin/config"       icon={<Settings size={18} />} label="Configuración" />
       </div>
 
       {/* Usuario */}

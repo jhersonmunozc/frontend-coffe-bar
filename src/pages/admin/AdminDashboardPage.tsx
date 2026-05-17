@@ -2,13 +2,13 @@ import { TrendingUp, ShoppingBag, AlertTriangle, Coffee, BarChart2, Bell } from 
 import { Topbar }        from '../../components/layout/Topbar'
 import { useDashboard }  from '../../hooks/useDashboard'
 
-/* ?? helpers de estilo ????????????????????????????? */
+/* ── helpers de estilo ─────────────────────────── */
 const card: React.CSSProperties = {
   background: 'var(--surface)', border: '1px solid var(--border)',
   borderRadius: 16, padding: '20px 22px',
 }
 
-/* ?? KPI card ???????????????????????????????????????? */
+/* ── KPI card ──────────────────────────────────── */
 interface KpiProps {
   label: string; value: string; sub: string
   icon: React.ReactNode; accentColor: string; bgColor: string
@@ -28,7 +28,7 @@ function KpiCard({ label, value, sub, icon, accentColor, bgColor }: KpiProps) {
   )
 }
 
-/* ?? barra de grafico ???????????????????????????????? */
+/* ── barra de grafico ──────────────────────────── */
 function BarraHora({ hora, pedidos, maxVal }: { hora: string; pedidos: number; maxVal: number }) {
   const pct = maxVal > 0 ? (pedidos / maxVal) * 100 : 0
   return (
@@ -42,14 +42,14 @@ function BarraHora({ hora, pedidos, maxVal }: { hora: string; pedidos: number; m
   )
 }
 
-/* ?? badge tipo alerta ??????????????????????????????? */
+/* ── badge tipo alerta ─────────────────────────── */
 const ALERTA_CFG = {
   crit: { bg: 'var(--red-bg)',   color: 'var(--red)',   label: 'Critico' },
   warn: { bg: 'var(--amber-bg)', color: 'var(--amber)', label: 'Aviso'   },
   info: { bg: 'var(--green-bg)', color: 'var(--green)', label: 'Info'    },
 } as const
 
-/* ??????????????????????????????????????????????????? */
+/* ═══════════════════════════════════════════════ */
 export default function AdminDashboardPage() {
   const {
     ingresosHoy, pedidosHoy, productoTop, ticketPromedio,
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
 
   const maxPedidos = Math.max(...ventasPorHora.map((v) => v.pedidos), 1)
 
-  /* skeleton gen?rico */
+  /* skeleton genérico */
   const Sk = ({ h = 20, w = '100%' }: { h?: number; w?: string | number }) => (
     <div style={{ height: h, width: w, background: 'var(--border)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
   )
@@ -70,11 +70,11 @@ export default function AdminDashboardPage() {
     <div style={{ padding: 32, background: 'var(--bg)', minHeight: '100vh' }}>
       <Topbar title="Dashboard" subtitle="Resumen del dia en tiempo real" />
 
-      {/* ?? KPIs ?? */}
+      {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
         <KpiCard
           label="Ingresos hoy"
-          value={isLoading ? '?' : `$${ingresosHoy.toLocaleString('es-CO')}`}
+          value={isLoading ? '…' : `$${ingresosHoy.toLocaleString('es-CO')}`}
           sub={isLoading ? '' : `${pedidosHoy} pedidos registrados`}
           icon={<TrendingUp size={20} />}
           accentColor="var(--cafe)"
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
         />
         <KpiCard
           label="Ticket promedio"
-          value={isLoading ? '?' : `$${ticketPromedio.toLocaleString('es-CO')}`}
+          value={isLoading ? '…' : `$${ticketPromedio.toLocaleString('es-CO')}`}
           sub="Por pedido"
           icon={<Coffee size={20} />}
           accentColor="var(--amber)"
@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
         />
         <KpiCard
           label="Producto top"
-          value={isLoading ? '?' : productoTop.nombre}
+          value={isLoading ? '…' : productoTop.nombre}
           sub={isLoading ? '' : `${productoTop.unidades} unidades vendidas`}
           icon={<ShoppingBag size={20} />}
           accentColor="var(--green)"
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
         />
         <KpiCard
           label="Alertas activas"
-          value={isLoading ? '?' : String(alertasTotales)}
+          value={isLoading ? '…' : String(alertasTotales)}
           sub={ingredientesCriticos.length > 0 ? `${ingredientesCriticos.length} ingrediente(s) critico(s)` : 'Sin criticos'}
           icon={<AlertTriangle size={20} />}
           accentColor={ingredientesCriticos.length > 0 ? 'var(--red)' : 'var(--muted)'}
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* ?? Fila media: grafico + distribucion ?? */}
+      {/* Fila media: grafico + distribucion */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
 
         {/* Ventas por hora */}
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
             <BarChart2 size={16} style={{ color: 'var(--cafe)' }} />
             <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>Pedidos por hora</span>
-            <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--muted)' }}>Hoy ? 7 am ? 6 pm</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--muted)' }}>Hoy · 7 am – 6 pm</span>
           </div>
           {isLoading ? (
             <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 110 }}>
@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* ?? Fila inferior: ranking + alertas ?? */}
+      {/* Fila inferior: ranking + alertas */}
       <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16 }}>
 
         {/* Ranking productos */}

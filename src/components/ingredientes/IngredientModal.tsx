@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { X } from 'lucide-react'
 import type { Ingrediente } from '../../types/cafesino.types'
 
-/* ?? Schemas ?? */
+/* Schemas */
 const schemaCrear = z.object({
   ing_id:   z.string().min(1, 'Requerido').regex(/^\S+$/, 'Sin espacios'),
   nombre:   z.string().min(2, 'Min 2 caracteres'),
@@ -20,7 +20,7 @@ type FormEditar = z.infer<typeof schemaEditar>
 const schemaStock = z.object({ cantidad: z.coerce.number().min(1, 'Min 1') })
 type FormStock = z.infer<typeof schemaStock>
 
-/* ?? Estilos compartidos ?? */
+/* Estilos compartidos */
 const INPUT: React.CSSProperties = {
   width: '100%', border: '1.5px solid var(--border)', borderRadius: 8,
   padding: '9px 12px', fontSize: 14, background: 'var(--bg)',
@@ -79,7 +79,7 @@ function ModalHeader({ title, subtitle, onClose }: { title: string; subtitle: st
   )
 }
 
-/* ?? Modal Crear ?? */
+/* Modal Crear */
 interface CrearProps {
   isOpen: boolean
   onClose: () => void
@@ -136,7 +136,7 @@ export function ModalCrearIngrediente({ isOpen, onClose, onSubmit, isPending, is
   )
 }
 
-/* ?? Modal Editar ?? */
+/* Modal Editar */
 interface EditarProps {
   ing: Ingrediente | null
   onClose: () => void
@@ -189,7 +189,7 @@ export function ModalEditarIngrediente({ ing, onClose, onSubmit, isPending, isEr
   )
 }
 
-/* ?? Modal +Stock ?? */
+/* Modal +Stock */
 interface StockProps {
   ing: Ingrediente | null
   onClose: () => void
@@ -218,7 +218,7 @@ export function ModalAgregarStock({ ing, onClose, onSubmit, isPending }: StockPr
   )
 }
 
-/* ?? Confirm Eliminar ?? */
+/* Confirm Eliminar */
 interface EliminarProps {
   ing: Ingrediente | null
   onClose: () => void
@@ -231,7 +231,7 @@ export function ModalEliminarIngrediente({ ing, onClose, onConfirm, isPending }:
     <Overlay onClose={onClose}>
       <ModalHeader title="Eliminar ingrediente" subtitle="Esta accion no se puede deshacer" onClose={onClose} />
       <p style={{ fontSize: 14, color: 'var(--text)', marginBottom: 22 }}>
-        ?Seguro que deseas eliminar <strong>{ing.nombre}</strong>?
+        ¿Seguro que deseas eliminar <strong>{ing.nombre}</strong>?
       </p>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
         <button onClick={onClose} style={BTN_SECONDARY}>Cancelar</button>

@@ -135,7 +135,7 @@ export function ModalReceta({ isOpen, onClose, onSubmit, isPending, isError, ing
           </div>
         </div>
 
-        {/* ?? PASO 1 ?? */}
+        {/* PASO 1 */}
         {step === 1 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -169,7 +169,7 @@ export function ModalReceta({ isOpen, onClose, onSubmit, isPending, isError, ing
 
             <div>
               <label style={LABEL}>URL de imagen</label>
-              <input value={prod.imagen_url} onChange={(e) => setP('imagen_url', e.target.value)} placeholder="https://... o dejar vac?o" style={INPUT} onFocus={(e) => (e.target.style.borderColor = 'var(--cafe)')} onBlur={(e) => (e.target.style.borderColor = 'var(--border)')} />
+              <input value={prod.imagen_url} onChange={(e) => setP('imagen_url', e.target.value)} placeholder="https://... o dejar vacío" style={INPUT} onFocus={(e) => (e.target.style.borderColor = 'var(--cafe)')} onBlur={(e) => (e.target.style.borderColor = 'var(--border)')} />
               {prod.imagen_url && (
                 <div style={{ marginTop: 8, width: 72, height: 72, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
                   <img src={prod.imagen_url} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement).style.display = 'flex' }} />
@@ -185,7 +185,7 @@ export function ModalReceta({ isOpen, onClose, onSubmit, isPending, isError, ing
           </div>
         )}
 
-        {/* ?? PASO 2 ?? */}
+        {/* PASO 2 */}
         {step === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
