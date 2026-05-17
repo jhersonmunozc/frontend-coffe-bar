@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Receipt, Coffee, LogOut } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { logout }       from '../../api/authApi'
+import { SidebarLogoMark } from './SidebarLogoMark'
 
 const S = {
   sidebar: {
@@ -12,11 +13,6 @@ const S = {
     padding: '22px 20px 18px',
     borderBottom: '1px solid rgba(255,255,255,0.08)',
     display: 'flex', alignItems: 'center', gap: 12,
-  },
-  logoIcon: {
-    width: 36, height: 36, borderRadius: 10, background: 'var(--cafe)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 18, flexShrink: 0,
   },
   sectionLabel: {
     fontSize: 10, fontWeight: 600, letterSpacing: '1.5px',
@@ -85,7 +81,7 @@ export function BaristaSidebar() {
     <aside style={S.sidebar}>
       {/* Logo */}
       <div style={S.logo}>
-        <div style={S.logoIcon}>☕</div>
+        <SidebarLogoMark />
         <div>
           <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: '#fff', fontWeight: 600 }}>
             Cafesino
