@@ -209,6 +209,17 @@ export default function BaristaDashboardPage() {
 
   const { data: ventas = [], isLoading } = useMisVentasHoy()
 
+  const { data: menu } = useQuery({
+    queryKey: ['menu-barista'],
+    queryFn: obtenerMenu,
+    staleTime: 60_000,
+  })
+
+  const nombreProd = (id: string): string => {
+    const todos = [...(menu?.disponibles ?? []), ...(menu?.noDisponibles ?? [])]
+    return todos.find(p => p.prod_id === id)?.nombre ?? id
+  }
+
   const kpis = useMemo(() => {
     const total    = ventas.reduce((s, v) => s + v.total, 0)
     const cantidad = ventas.length
@@ -242,7 +253,7 @@ export default function BaristaDashboardPage() {
         <KpiCard label="Promedio por venta"   value={formatPeso(kpis.promedio)} color="var(--amber)" delay={0.1}  icon={<BarChart2 size={16} color="var(--amber)" />} />
         <KpiCard
           label="Producto más vendido"
-          value={kpis.topCant > 0 ? `${kpis.topId} ×${kpis.topCant}` : '—'}
+          value={kpis.topCant > 0 ? `${nombreProd(kpis.topId)} ×${kpis.topCant}` : '—'}
           color="var(--red)"
           delay={0.15}
           icon={<Star size={16} color="var(--red)" />}
@@ -327,7 +338,7 @@ export default function BaristaDashboardPage() {
                       {formatHora(v.fecha)}
                     </td>
                     <td style={{ padding: '12px 20px', fontSize: 13.5, color: 'var(--text)' }}>
-                      {v.productos.map(p => `${p.prod_id} ×${p.cantidad}`).join(', ')}
+                      {v.productos.map(p => `${nombreProd(p.prod_id)} ×${p.cantidad}`).join(', ')}
                     </td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: 'var(--muted)' }}>
                       {v.productos.reduce((s, p) => s + p.cantidad, 0)}
